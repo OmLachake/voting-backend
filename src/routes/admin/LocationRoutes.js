@@ -1,4 +1,11 @@
 const express = require("express");
+const {
+  createLocation,
+  getAllLocations,
+  getLocationById,
+  updateLocation,
+  deleteLocation,
+} = require("../../controllers/LocationController");
 const LocationRoutes = express.Router();
 
 LocationRoutes.post("/create", createLocation);

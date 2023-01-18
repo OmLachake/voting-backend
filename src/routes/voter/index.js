@@ -16,4 +16,4 @@ VoterRoutes.post("/voter/cast-vote", verifyVoterLogin);
 VoterRoutes.post("/voter/get-wallet", verifyVoterLogin);
 VoterRoutes.post("/voter/cast-vote", verifyVoterLogin);
 
-module.exports = ModeratorRoutes;
+module.exports = VoterRoutes;

@@ -8,6 +8,7 @@ const {
   addElectionToVoter,
   deleteVoter,
   verifyVoter,
+  getAllVoters,
 } = require("../../controllers/VoterController");
 
 VoterAdministrationRoutes.get("/all-voters", getAllVoters);

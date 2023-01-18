@@ -7,6 +7,7 @@ const {
   getCancelledElections,
   updateElection,
   deactivateElection,
+  getActiveElections,
 } = require("../../controllers/ElectionController");
 const ElectionRoutes = express.Router();
 

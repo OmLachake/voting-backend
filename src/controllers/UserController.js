@@ -1,31 +1,43 @@
 const jwt = require("jsonwebtoken");
+const { customAlphabet } = require("nanoid");
 const User = require("../models/UserSchema");
 
 exports.SignUp = (req, res) => {
-  const newUser = new User(req.body);
-
-  newUser.save((err, user) => {
-    if (err) {
-      return res.status(500).send(err);
+  User.find({ email: req.body.email }).exec((error, user) => {
+    console.log(user);
+    if (user.length !== 0) {
+      return res.status(401).json({ message: "Email Already Exists" });
     }
-    const token = jwt.sign(
-      {
-        id: user._id,
-        name: user.name,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "24h",
-      }
-    );
+    if (error) {
+      return res.status(500).json({ message: "Something Went Wrong." });
+    } else {
+      const newUser = new User(req.body);
+      const loginId = customAlphabet(newUser.name.replace(/ /g, ""), 5);
+      newUser.loginId = loginId().toLowerCase();
+      newUser.save((err, user) => {
+        if (err) {
+          return res.status(500).send(err);
+        }
+        const token = jwt.sign(
+          {
+            id: user._id,
+            name: user.name,
+            role: user.role,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "24h",
+          }
+        );
 
-    return res.status(201).json({ user: user.name, token });
+        return res.status(200).json({ user: user, token });
+      });
+    }
   });
 };
 
 exports.Login = (req, res) => {
-  User.findOne({ loginId: req.body.loginId }, (err, user) => {
+  User.findOne({ email: req.body.email }, (err, user) => {
     if (err) {
       return res.status(500).send(err);
     }
@@ -53,15 +65,14 @@ exports.Login = (req, res) => {
         }
       );
 
-      return res.status(200).json({ user: user.name, token });
+      console.log({ name: user.name, role: user.role, token });
+      return res.status(200).json({ name: user.name, role: user.role, token });
     });
   });
 };
 
 exports.Logout = (req, res) => {
-  const { id } = jwt.decode(req.headers.authorization);
-
-  User.findById(id, (err, user) => {
+  User.findById(req.body.user.id, (err, user) => {
     if (err) {
       return res.status(500).send(err);
     }

@@ -3,9 +3,12 @@ const Voter = require("../models/VoterSchema");
 //TODO: Create a voter wallet and set the public address set tokens to 0.
 exports.createVoter = (req, res) => {
   const newVoter = new Voter(req.body);
-
+  newVoter.createdBy = req.body.user.id;
+  newVoter.updatedBy = req.body.user.id;
+  console.log(newVoter);
   newVoter.save((err, voter) => {
     if (err) {
+      console.log(err);
       return res.status(500).send(err);
     }
     return res.status(201).json(voter);
@@ -13,8 +16,9 @@ exports.createVoter = (req, res) => {
 };
 
 exports.getAllVoters = (req, res) => {
-  Voter.find({})
-    .populate("LocationID", "name")
+  Voter.find({ select: "-password" })
+    .populate("locationId", "name _id")
+    .populate({ path: "elections", select: "name _id ", model: "Election" })
     .exec((err, voters) => {
       if (err) {
         return res.status(500).send(err);
@@ -25,10 +29,10 @@ exports.getAllVoters = (req, res) => {
 
 exports.getVoterById = (req, res) => {
   Voter.findById(req.params.id)
-    .populate("LocationID")
+    .populate("locationId")
     .populate({
       path: "elections",
-      select: "name imageUrl _id status active",
+      select: "name _id status active",
       model: "Election",
     })
     .exec((err, voter) => {
@@ -45,7 +49,10 @@ exports.getVoterById = (req, res) => {
 exports.addElectionToVoter = (req, res) => {
   Voter.findByIdAndUpdate(
     req.params.id,
-    { $push: { elections: req.body.electionID } },
+    {
+      $push: { elections: req.body.electionID },
+      $set: { updatedBy: req.body.user._id },
+    },
     { new: true },
     (err, voter) => {
       if (err) {
@@ -68,7 +75,7 @@ exports.addElectionToVoter = (req, res) => {
 exports.verifyVoter = (req, res) => {
   Voter.findByIdAndUpdate(
     req.params.id,
-    { $set: { isVerified: true } },
+    { $set: { isVerified: true, updatedBy: req.body.user._id } },
     { new: true },
     (err, voter) => {
       if (err) {
@@ -85,7 +92,7 @@ exports.verifyVoter = (req, res) => {
 exports.updateVoter = (req, res) => {
   Voter.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    { ...req.body, $set: { updatedBy: req.body.user.id } },
     { new: true },
     (err, voter) => {
       if (err) {

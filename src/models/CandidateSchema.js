@@ -11,20 +11,18 @@ const CandidateSchema = new mongoose.Schema(
       type: String,
       required: [true, "Cannot be empty."],
       trim: true,
-      unique: true,
       index: true,
     },
     WalletID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Wallet",
-      required: true,
     },
-    LocationID: {
+    locationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",
       required: true,
     },
-    ElectionID: {
+    electionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Election",
       required: true,

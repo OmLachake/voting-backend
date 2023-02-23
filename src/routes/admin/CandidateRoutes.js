@@ -10,7 +10,7 @@ const {
 } = require("../../controllers/CandidateController");
 
 CandidateRoutes.post("/", createCandidate);
-CandidateRoutes.get("/", getAllCandidates);
+CandidateRoutes.get("/all-candidates", getAllCandidates);
 CandidateRoutes.get("/:id", getCandidateById);
 CandidateRoutes.put("/:id", updateCandidate);
 CandidateRoutes.delete("/deactivate/:id", deactivateCandidate);

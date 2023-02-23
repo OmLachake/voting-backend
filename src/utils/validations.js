@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const verifyLogin = (req, res, next) => {
   if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, process.env.JWT_KEY, (error, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
       if (error) {
         return res.status(400).json({
           message: "Authorization Failed. Please Login Again.",

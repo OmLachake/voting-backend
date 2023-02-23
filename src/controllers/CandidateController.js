@@ -5,7 +5,8 @@ const Candidate = require("../models/CandidateSchema");
 //TODO: Create wallet and set the public address and set tokens to 0.
 exports.createCandidate = (req, res) => {
   const newCandidate = new Candidate(req.body);
-
+  newCandidate.createdBy = req.body.user.id;
+  newCandidate.updatedBy = req.body.user.id;
   newCandidate.save((err, candidate) => {
     if (err) {
       return res.status(500).send(err);
@@ -16,25 +17,29 @@ exports.createCandidate = (req, res) => {
 
 exports.getAllCandidates = (req, res) => {
   const filters = req.body.filters;
-  Candidate.find({ ...filters }).exec((err, candidates) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    return res.status(200).json(candidates);
-  });
+  Candidate.find({ ...filters })
+    .populate("locationId", "name zip")
+    .populate("electionId", "name zip")
+    .populate("updatedBy", "name -_id")
+    .exec((err, candidates) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      return res.status(200).json(candidates);
+    });
 };
 
 exports.getCandidateById = (req, res) => {
   Candidate.findById(req.params.id)
     .populate({
-      path: "ElectionID",
+      path: "electionId",
       model: "Election",
       select: "name _id",
     })
     .populate({
-      path: "LocationID",
+      path: "locationId",
       model: "Location",
-      select: "name _id",
+      select: "name zip _id",
     })
     .populate({
       path: "WalletID",
@@ -58,12 +63,12 @@ exports.updateCandidate = (req, res) => {
     upsert: true,
   })
     .populate({
-      path: "ElectionID",
+      path: "electionId",
       model: "Election",
       select: "name _id",
     })
     .populate({
-      path: "LocationID",
+      path: "locationId",
       model: "Location",
       select: "name _id",
     })

@@ -3,7 +3,8 @@ const Election = require("../models/ElectionSchema");
 //TODO: Start a new Network
 exports.createElection = (req, res) => {
   const newElection = new Election(req.body);
-
+  newElection.createdBy = req.body.user.id;
+  newElection.updatedBy = req.body.user.id;
   newElection.save((err, election) => {
     if (err) {
       return res.status(500).send(err);
@@ -14,7 +15,11 @@ exports.createElection = (req, res) => {
 
 exports.getAllElections = (req, res) => {
   Election.find({})
-    .populate({ path: "locations.locationID", model: "Location" })
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name",
+    })
     .exec((err, elections) => {
       if (err) {
         return res.status(500).send(err);
@@ -25,7 +30,11 @@ exports.getAllElections = (req, res) => {
 
 exports.getActiveElections = (req, res) => {
   Election.find({ active: true })
-    .populate({ path: "locations.locationID", model: "Location" })
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name",
+    })
     .exec((err, activeElections) => {
       if (err) {
         return res.status(500).send(err);
@@ -36,7 +45,11 @@ exports.getActiveElections = (req, res) => {
 
 exports.getCancelledElections = (req, res) => {
   Election.find({ status: "cancelled" })
-    .populate({ path: "locations.locationID", model: "Location" })
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name",
+    })
     .exec((err, activeElections) => {
       if (err) {
         return res.status(500).send(err);
@@ -47,7 +60,11 @@ exports.getCancelledElections = (req, res) => {
 
 exports.getCompletedElections = (req, res) => {
   Election.find({ status: "completed" })
-    .populate({ path: "locations.locationID", model: "Location" })
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name",
+    })
     .exec((err, activeElections) => {
       if (err) {
         return res.status(500).send(err);
@@ -58,7 +75,13 @@ exports.getCompletedElections = (req, res) => {
 
 exports.getElectionById = (req, res) => {
   Election.findById(req.params.id)
-    .populate({ path: "locations.locationID", model: "Location" })
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name zip -_id",
+    })
+    .populate("createdBy", "name -_id")
+    .populate("updatedBy", "name -_id")
     .exec((err, election) => {
       if (err) {
         return res.status(500).send(err);
@@ -71,11 +94,20 @@ exports.getElectionById = (req, res) => {
 };
 
 exports.updateElection = (req, res) => {
-  Election.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    upsert: true,
-  })
-    .populate({ path: "locations.locationID", model: "Location" })
+  Election.findByIdAndUpdate(
+    req.params.id,
+    { ...req.body, updatedBy: req.body.user.id },
+    {
+      new: true,
+    }
+  )
+    .populate({
+      path: "locations.locationId",
+      model: "Location",
+      select: "name zip -_id",
+    })
+    .populate("createdBy", "name -_id")
+    .populate("updatedBy", "name -_id")
     .exec((err, election) => {
       if (err) {
         return res.status(500).send(err);

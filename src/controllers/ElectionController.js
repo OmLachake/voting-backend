@@ -1,4 +1,5 @@
 const Election = require("../models/ElectionSchema");
+const Candidate = require("../models/CandidateSchema");
 
 //TODO: Start a new Network
 exports.createElection = (req, res) => {
@@ -132,7 +133,7 @@ exports.deactivateElection = (req, res) => {
     if (req.body.status === "scheduled" || req.body.status === "active") {
       return res.status(500).json({ message: "Invalid Status Change" });
     }
-    election.status = req.body.status;
+    election.status = "cancelled";
     election.active = false;
     election.save((error) => {
       if (error) {
@@ -141,4 +142,25 @@ exports.deactivateElection = (req, res) => {
       return res.status(200).json(election);
     });
   });
+};
+
+exports.getCandidatesForElection = (req, res) => {
+  const electionId = req.body.electionId;
+  const locationId = req.body.locationId;
+  Candidate.find({
+    electionId: electionId,
+    locationId: locationId,
+    active: true,
+  })
+    .select("name _id walletId active")
+    .exec((err, candidates) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      if (!candidates) {
+        return res.status(404).json({ message: "Election not found" });
+      }
+
+      return res.status(200).json(candidates);
+    });
 };

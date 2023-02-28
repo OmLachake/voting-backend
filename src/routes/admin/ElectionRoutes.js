@@ -18,6 +18,7 @@ ElectionRoutes.get("/cancelled", getCancelledElections);
 ElectionRoutes.get("/completed", getCompletedElections);
 ElectionRoutes.get("/:id", getElectionById);
 
+
 ElectionRoutes.put("/:id", updateElection);
 
 ElectionRoutes.delete("/:id", deactivateElection);

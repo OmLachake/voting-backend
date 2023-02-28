@@ -16,9 +16,9 @@ app.use(bodyParser());
 ConnectToDB();
 
 app.use("/api", UserRoutes);
-app.use("/api", verifyLogin, AdminRoutes);
-app.use("/api", verifyLogin, ModeratorRoutes);
 app.use("/api", VoterRoutes);
+app.use("/api", verifyLogin, ModeratorRoutes);
+app.use("/api", verifyLogin, AdminRoutes);
 
 app.listen(process.env.PORT, (req, res) => {
   console.log("Server Connected : ", process.env.PORT);

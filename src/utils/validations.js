@@ -56,22 +56,17 @@ const isModerator = (req, res, next) => {
 const verifyVoterLogin = (req, res, next) => {
   if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, process.env.JWT_KEY, (error, voter) => {
+    
+    jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
       if (error) {
         return res.status(400).json({
           message: "Authorization Failed. Please Login Again.",
           failed: true,
         });
       }
-      if (voter) {
-        if (voter.isVoter === true) {
-          req.body.voter = voter;
-          next();
-        } else {
-          return res.status(400).json({
-            message: "Authorization Failed. Please Login Again.",
-          });
-        }
+      if (user) {
+        req.body.user = user;
+        next();
       }
     });
   } else {

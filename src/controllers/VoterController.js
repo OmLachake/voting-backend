@@ -1,4 +1,5 @@
 const Voter = require("../models/VoterSchema");
+const jwt = require("jsonwebtoken");
 
 //TODO: Create a voter wallet and set the public address set tokens to 0.
 exports.createVoter = (req, res) => {
@@ -18,7 +19,11 @@ exports.createVoter = (req, res) => {
 exports.getAllVoters = (req, res) => {
   Voter.find({ select: "-password" })
     .populate("locationId", "name _id")
-    .populate({ path: "elections", select: "name _id ", model: "Election" })
+    .populate({
+      path: "elections.electionId",
+      select: "name _id ",
+      model: "Election",
+    })
     .exec((err, voters) => {
       if (err) {
         return res.status(500).send(err);
@@ -28,10 +33,10 @@ exports.getAllVoters = (req, res) => {
 };
 
 exports.getVoterById = (req, res) => {
-  Voter.findById(req.params.id)
+  Voter.findById(req.body.user.id)
     .populate("locationId")
     .populate({
-      path: "elections",
+      path: "elections.electionId",
       select: "name _id status active",
       model: "Election",
     })
@@ -120,37 +125,30 @@ exports.deleteVoter = (req, res) => {
 };
 
 exports.Login = (req, res) => {
-  Voter.findOne({ loginId: req.body.loginId })
+  Voter.findOne({ loginId: req.body.email })
     .populate()
     .exec((err, voter) => {
       if (err) {
         return res.status(500).send(err);
       }
-      if (!user) {
+      if (!voter) {
         return res.status(404).json({ message: "Voter not found" });
       }
 
-      voter.comparePassword(req.body.password, (error, isMatch) => {
-        if (error) {
-          return res.status(500).send(error);
-        }
-        if (!isMatch) {
-          return res.status(401).json({ message: "Invalid credentials" });
-        }
-
+      if (voter.password === req.body.password) {
         const token = jwt.sign(
           {
             id: voter._id,
             isVoter: true,
+            name: voter.name,
           },
           process.env.JWT_SECRET,
           {
             expiresIn: "24h",
           }
         );
-
         return res.status(200).json({ user: voter.name, token });
-      });
+      }
     });
 };
 
@@ -166,5 +164,44 @@ exports.Logout = (req, res) => {
     }
 
     return res.status(200).json({ message: "Successfully logged out" });
+  });
+};
+
+exports.castVote = (req, res) => {
+  const { candidateId, electionId } = req.body;
+  Voter.findOne({ _id: req.body.user.id }).exec((err, voter) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    if (!voter) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const { elections } = voter;
+    let isComplete = 1;
+    elections.forEach((election) => {
+      if (election.electionId === electionId) {
+        election.status = "completed";
+      }
+      if (election.status != "completed") {
+        isComplete = 0;
+      }
+    });
+
+    if (isComplete) {
+      voter.status = "completed";
+    }
+
+    voter.elections = elections;
+    voter.save((err, voter) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      if (!voter) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      console.log(voter);
+      return res.status(200).json({ message: "Vote Casted Succesfully!" });
+    });
   });
 };

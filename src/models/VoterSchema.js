@@ -17,7 +17,16 @@ const VoterSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     password: { type: String, required: true, min: 6 },
     loginId: { type: String, requird: true },
-    elections: [{ type: mongoose.Schema.Types.ObjectId, ref: "Election" }],
+    elections: [
+      {
+        electionId: { type: mongoose.Schema.Types.ObjectId, ref: "Election" },
+        status: {
+          type: String,
+          enum: ["missed", "incomplete", "completed"],
+          default: "incomplete",
+        },
+      },
+    ],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

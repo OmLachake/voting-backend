@@ -1,6 +1,10 @@
 const jwt = require("jsonwebtoken");
 const { customAlphabet } = require("nanoid");
 const User = require("../models/UserSchema");
+const Voter = require("../models/VoterSchema");
+const Election = require("../models/ElectionSchema");
+const Candidate = require("../models/CandidateSchema");
+const Location = require("../models/LocationSchema");
 
 exports.SignUp = (req, res) => {
   User.find({ email: req.body.email }).exec((error, user) => {
@@ -83,3 +87,4 @@ exports.Logout = (req, res) => {
     return res.status(200).json({ message: "Successfully logged out" });
   });
 };
+

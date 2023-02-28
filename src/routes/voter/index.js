@@ -1,19 +1,22 @@
 const express = require("express");
 const {
+  getCandidatesForElection,
+} = require("../../controllers/ElectionController");
+const {
   getVoterById,
   Login,
   Logout,
+  castVote,
 } = require("../../controllers/VoterController");
 const { verifyVoterLogin } = require("../../utils/validations");
 const VoterRoutes = express.Router();
 
-VoterRoutes.get("/voter/:id", verifyVoterLogin, getVoterById);
-VoterRoutes.post("/voter/login", verifyVoterLogin, Login);
+VoterRoutes.post("/voter/login", Login);
 VoterRoutes.post("/voter/logout", verifyVoterLogin, Logout);
+VoterRoutes.get("/voter/my-data", verifyVoterLogin, getVoterById);
 //TODO
-VoterRoutes.post("/voter/get-election-candidates", verifyVoterLogin);
-VoterRoutes.post("/voter/cast-vote", verifyVoterLogin);
-VoterRoutes.post("/voter/get-wallet", verifyVoterLogin);
-VoterRoutes.post("/voter/cast-vote", verifyVoterLogin);
+VoterRoutes.get("/voter/get-election-candidates/", getCandidatesForElection);
+VoterRoutes.get("/voter/get-wallet", verifyVoterLogin);
+VoterRoutes.post("/voter/cast-vote", verifyVoterLogin, castVote);
 
 module.exports = VoterRoutes;

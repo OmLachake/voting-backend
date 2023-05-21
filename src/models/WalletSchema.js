@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 
 const WalletSchema = mongoose.Schema({
-  public_key: {
+  private: {
     type: String,
-    required: [true, "Cannot be empty."],
-    unique: true,
+  },
+  public: {
+    type: String,
+  },
+  voteToken: {
+    type: Number,
+    default: 0,
   },
 });
 

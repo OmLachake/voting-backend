@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const VoterSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    WalletID: { type: String },
+    WalletID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
+      required: true,
+    },
     locationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",

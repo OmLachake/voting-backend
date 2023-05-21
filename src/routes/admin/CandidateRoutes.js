@@ -16,4 +16,5 @@ CandidateRoutes.put("/:id", updateCandidate);
 CandidateRoutes.delete("/deactivate/:id", deactivateCandidate);
 CandidateRoutes.delete("/:id", deleteCandidate);
 
+
 module.exports = CandidateRoutes;

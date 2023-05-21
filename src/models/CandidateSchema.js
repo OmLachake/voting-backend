@@ -13,7 +13,7 @@ const CandidateSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
-    WalletId: {
+    WalletID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Wallet",
     },

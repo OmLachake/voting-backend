@@ -1,18 +1,57 @@
 const Candidate = require("../models/CandidateSchema");
-
+const { generateKeyPair } = require("crypto");
+const Wallet = require("../models/WalletSchema");
 //TODO: Create a peer node
 //TODO: Assign a organization
 //TODO: Create wallet and set the public address and set tokens to 0.
 exports.createCandidate = (req, res) => {
   const newCandidate = new Candidate(req.body);
-  newCandidate.createdBy = req.body.user.id;
-  newCandidate.updatedBy = req.body.user.id;
-  newCandidate.save((err, candidate) => {
-    if (err) {
-      return res.status(500).send(err);
+  let keyPair = {
+    public: "",
+    private: "",
+  };
+  generateKeyPair(
+    "ec",
+    {
+      namedCurve: "secp256k1", // Options
+      publicKeyEncoding: {
+        type: "spki",
+        format: "der",
+      },
+      privateKeyEncoding: {
+        type: "pkcs8",
+        format: "der",
+      },
+    },
+    (err, publicKey, privateKey) => {
+      if (!err) {
+        keyPair.public = publicKey.toString("hex");
+        keyPair.private = privateKey.toString("hex");
+
+        const newWallet = new Wallet({
+          private: keyPair.private,
+          public: keyPair.public,
+        });
+        newWallet.save((err, wallet) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).send(err);
+          }
+          newCandidate.createdBy = req.body.user.id;
+          newCandidate.updatedBy = req.body.user.id;
+          newCandidate.WalletID = wallet._id;
+          newCandidate.save((err, candidate) => {
+            if (err) {
+              return res.status(500).send(err);
+            }
+            return res.status(201).json(candidate);
+          });
+        });
+      } else {
+        console.log("Error Generating Keys: ", err);
+      }
     }
-    return res.status(201).json(candidate);
-  });
+  );
 };
 
 exports.getAllCandidates = (req, res) => {
@@ -44,7 +83,7 @@ exports.getCandidateById = (req, res) => {
     .populate({
       path: "WalletID",
       model: "Wallet",
-      select: "public_key",
+      select: "public voteTokens",
     })
     .exec((err, candidate) => {
       if (err) {

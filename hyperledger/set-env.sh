@@ -1,9 +1,9 @@
 # Make sure that IP Addresses are setup properly
 # Use PUBLIC IP Here
 
-export ORDERER_ADDRESS=44.203.253.213:7050
-export ACME_EP=100.24.22.86:7051
-export BUDGET_EP=3.94.184.88:7051
+export ORDERER_ADDRESS=18.221.28.108:7050
+export ACME_EP=3.15.143.119:7051
+export BUDGET_EP=18.188.162.107:7051
 export FABRIC_CFG_PATH=$PWD
 
 export CORE_PEER_MSPCONFIGPATH=./crypto-config/peerOrganizations/acme.com/users/Admin@acme.com/msp

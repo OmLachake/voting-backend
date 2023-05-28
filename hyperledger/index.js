@@ -13,15 +13,15 @@ const ExecutePeerCommand = async (command) => {
 };
 
 const CreateCandidateStateCommand = (candidateName) => {
-  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["create","${candidateName}"]}' -o 44.203.253.213:7050 --waitForEvent`;
+  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["create","${candidateName}"]}' -o $ORDERER_ADDRESS --waitForEvent`;
 };
 
 const QueryCandidateStateCommand = (candidateName) => {
-  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["query","${candidateName}"]}' -o 44.203.253.213:7050 --waitForEvent`;
+  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["query","${candidateName}"]}' -o $ORDERER_ADDRESS --waitForEvent`;
 };
 
 const InvokeCommand = (candidateName, Signature) => {
-  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["invoke","${candidateName}","${Signature}"]}' -o 44.203.253.213:7050 --waitForEvent`;
+  return `peer chaincode invoke -C airlinechannel -n vote1 -c '{"Args":["invoke","${candidateName}","${Signature}"]}' -o $ORDERER_ADDRESS --waitForEvent`;
 };
 
 module.exports = {

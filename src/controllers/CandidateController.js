@@ -1,6 +1,11 @@
 const Candidate = require("../models/CandidateSchema");
 const { generateKeyPair } = require("crypto");
 const Wallet = require("../models/WalletSchema");
+const {
+  CreateCandidateStateCommand,
+  ExecutePeerCommand,
+  QueryCandidateStateCommand,
+} = require("../../hyperledger");
 //TODO: Create a peer node
 //TODO: Assign a organization
 //TODO: Create wallet and set the public address and set tokens to 0.
@@ -40,10 +45,13 @@ exports.createCandidate = (req, res) => {
           newCandidate.createdBy = req.body.user.id;
           newCandidate.updatedBy = req.body.user.id;
           newCandidate.WalletID = wallet._id;
-          newCandidate.save((err, candidate) => {
+          newCandidate.save(async (err, candidate) => {
             if (err) {
               return res.status(500).send(err);
             }
+
+            const command = CreateCandidateStateCommand(candidate.loginId);
+            await ExecutePeerCommand(command);
             return res.status(201).json(candidate);
           });
         });

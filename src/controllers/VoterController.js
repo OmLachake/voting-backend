@@ -10,6 +10,7 @@ const {
   // ValidateRingSignature,
 } = require("../../hyperledger/functions");
 const crypto = require("crypto");
+const { InvokeCommand, ExecutePeerCommand } = require("../../hyperledger");
 
 //TODO: Create a voter wallet and set the public address set tokens to 0.
 exports.createVoter = (req, res) => {
@@ -361,7 +362,8 @@ exports.castVote = async (req, res) => {
               if (!transaction) {
                 return res.status(404).json({ message: "Voter not found" });
               }
-
+              const command = InvokeCommand(candidate.loginId, VoterHash);
+              await ExecutePeerCommand(command);
               return res.status(200).json({
                 message: "Voting Succesful",
                 TransactionKey: TransactionKey,
